@@ -680,6 +680,9 @@ func DetectCompositors() []string {
 	if utils.CommandExists("Hyprland") {
 		compositors = append(compositors, "Hyprland")
 	}
+	if utils.CommandExists("mango") {
+		compositors = append(compositors, "mango")
+	}
 
 	return compositors
 }
@@ -2149,18 +2152,6 @@ vt = 1
 
 	commandLine := fmt.Sprintf(`command = "%s"`, commandValue)
 	newConfig := upsertDefaultSession(configContent, greeterUser, commandLine)
-
-	homeDir, homeErr := os.UserHomeDir()
-	if homeErr == nil {
-		enabled, loginUser, sessionExec, resolveErr := resolveGreeterAutoLoginState(GreeterCacheDir, homeDir)
-		if resolveErr != nil {
-			logFunc(fmt.Sprintf("⚠ Warning: Failed to resolve greeter auto-login state: %v", resolveErr))
-		} else if enabled && loginUser != "" && sessionExec != "" {
-			newConfig = upsertInitialSession(newConfig, loginUser, sessionExec, true)
-		} else {
-			newConfig = upsertInitialSession(newConfig, "", "", false)
-		}
-	}
 
 	if err := writeGreetdConfig(configPath, newConfig, logFunc, sudoPassword, fmt.Sprintf("✓ Updated greetd configuration (user: %s, command: %s)", greeterUser, commandValue)); err != nil {
 		return err

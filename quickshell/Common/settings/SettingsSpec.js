@@ -29,9 +29,11 @@ var SPEC = {
     hyprlandLayoutGapsOverride: { def: -1, onChange: "updateCompositorLayout" },
     hyprlandLayoutRadiusOverride: { def: -1, onChange: "updateCompositorLayout" },
     hyprlandLayoutBorderSize: { def: -1, onChange: "updateCompositorLayout" },
+    hyprlandResizeOnBorder: { def: false, onChange: "updateCompositorLayout" },
     mangoLayoutGapsOverride: { def: -1, onChange: "updateCompositorLayout" },
     mangoLayoutRadiusOverride: { def: -1, onChange: "updateCompositorLayout" },
     mangoLayoutBorderSize: { def: -1, onChange: "updateCompositorLayout" },
+    mangoTrackpadNaturalScrolling: { def: true, onChange: "updateCompositorCursor" },
 
     firstDayOfWeek: { def: -1 },
     showWeekNumber: { def: false },
@@ -134,6 +136,7 @@ var SPEC = {
     maxWorkspaceIcons: { def: 3 },
     workspaceAppIconSizeOffset: { def: 0 },
     groupWorkspaceApps: { def: true },
+    groupActiveWorkspaceApps: { def: false },
     workspaceFollowFocus: { def: false },
     showOccupiedWorkspacesOnly: { def: false },
     reverseScrolling: { def: false },
@@ -235,7 +238,7 @@ var SPEC = {
     qt6ctAvailable: { def: false, persist: false },
     gtkAvailable: { def: false, persist: false },
 
-    cursorSettings: { def: { theme: "System Default", size: 24, niri: { hideWhenTyping: false, hideAfterInactiveMs: 0 }, hyprland: { hideOnKeyPress: false, hideOnTouch: false, inactiveTimeout: 0 }, dwl: { cursorHideTimeout: 0 } }, onChange: "updateCompositorCursor" },
+    cursorSettings: { def: { theme: "System Default", size: 24, niri: { hideWhenTyping: false, hideAfterInactiveMs: 0 }, hyprland: { hideOnKeyPress: false, hideOnTouch: false, inactiveTimeout: 0 }, dwl: { cursorHideTimeout: 0 }, mango: { cursorHideTimeout: 0 } }, onChange: "updateCompositorCursor" },
     availableCursorThemes: { def: ["System Default"], persist: false },
     systemDefaultCursorTheme: { def: "", persist: false },
 
@@ -591,6 +594,7 @@ function getValidKeys() {
 
 function set(root, key, value, saveFn, hooks) {
     if (!(key in SPEC)) return;
+    if (value === undefined || value === null) value = SPEC[key].def;
     root[key] = value;
     var hookName = SPEC[key].onChange;
     if (hookName && hooks && hooks[hookName]) {
