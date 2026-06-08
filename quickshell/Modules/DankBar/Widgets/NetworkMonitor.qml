@@ -1,29 +1,37 @@
 import QtQuick
+import QtQuick.Controls
 import qs.Common
 import qs.Modules.Plugins
+import qs.Modules.ProcessList
 import qs.Services
 import qs.Widgets
 
 BasePill {
     id: root
 
+    property bool showVerticalStack: false
+
+    onClicked: {
+        showVerticalStack = !showVerticalStack;
+    }
+
     function formatNetworkSpeed(bytesPerSec) {
         if (bytesPerSec < 1024) {
-            return bytesPerSec.toFixed(0) + " B/s";
+            return bytesPerSec.toFixed(0) + " B/s"
         } else if (bytesPerSec < 1024 * 1024) {
-            return (bytesPerSec / 1024).toFixed(1) + " KB/s";
+            return (bytesPerSec / 1024).toFixed(1) + " KB/s"
         } else if (bytesPerSec < 1024 * 1024 * 1024) {
-            return (bytesPerSec / (1024 * 1024)).toFixed(1) + " MB/s";
+            return (bytesPerSec / (1024 * 1024)).toFixed(1) + " MB/s"
         } else {
-            return (bytesPerSec / (1024 * 1024 * 1024)).toFixed(1) + " GB/s";
+            return (bytesPerSec / (1024 * 1024 * 1024)).toFixed(1) + " GB/s"
         }
     }
 
     Component.onCompleted: {
-        DgopService.addRef(["network"]);
+        DgopService.addRef(["network"])
     }
     Component.onDestruction: {
-        DgopService.removeRef(["network"]);
+        DgopService.removeRef(["network"])
     }
 
     content: Component {
@@ -46,12 +54,10 @@ BasePill {
 
                 StyledText {
                     text: {
-                        const rate = DgopService.networkRxRate;
-                        if (rate < 1024)
-                            return rate.toFixed(0);
-                        if (rate < 1024 * 1024)
-                            return (rate / 1024).toFixed(0) + "K";
-                        return (rate / (1024 * 1024)).toFixed(0) + "M";
+                        const rate = DgopService.networkRxRate
+                        if (rate < 1024) return rate.toFixed(0)
+                        if (rate < 1024 * 1024) return (rate / 1024).toFixed(0) + "K"
+                        return (rate / (1024 * 1024)).toFixed(0) + "M"
                     }
                     font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
                     color: Theme.info
@@ -60,12 +66,10 @@ BasePill {
 
                 StyledText {
                     text: {
-                        const rate = DgopService.networkTxRate;
-                        if (rate < 1024)
-                            return rate.toFixed(0);
-                        if (rate < 1024 * 1024)
-                            return (rate / 1024).toFixed(0) + "K";
-                        return (rate / (1024 * 1024)).toFixed(0) + "M";
+                        const rate = DgopService.networkTxRate
+                        if (rate < 1024) return rate.toFixed(0)
+                        if (rate < 1024 * 1024) return (rate / 1024).toFixed(0) + "K"
+                        return (rate / (1024 * 1024)).toFixed(0) + "M"
                     }
                     font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
                     color: Theme.error
@@ -87,60 +91,135 @@ BasePill {
                 }
 
                 Row {
+                    spacing: Theme.spacingS
+                    visible: !root.showVerticalStack
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: 4
 
-                    StyledText {
-                        text: "↓"
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.info
-                    }
-
-                    StyledText {
-                        text: DgopService.networkRxRate > 0 ? root.formatNetworkSpeed(DgopService.networkRxRate) : "0 B/s"
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.widgetTextColor
+                    Row {
+                        spacing: 4
                         anchors.verticalCenter: parent.verticalCenter
-                        horizontalAlignment: Text.AlignLeft
-                        elide: Text.ElideNone
-                        wrapMode: Text.NoWrap
 
-                        StyledTextMetrics {
-                            id: rxBaseline
+                        StyledText {
+                            text: "↓"
                             font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                            text: "88.8 MB/s"
+                            color: Theme.info
+                            anchors.verticalCenter: parent.verticalCenter
                         }
 
-                        width: Math.max(rxBaseline.width, paintedWidth)
+                        StyledText {
+                            text: DgopService.networkRxRate > 0 ? root.formatNetworkSpeed(DgopService.networkRxRate) : "0 B/s"
+                            font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                            color: Theme.widgetTextColor
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: Text.AlignLeft
+                            elide: Text.ElideNone
+                            wrapMode: Text.NoWrap
+
+                            StyledTextMetrics {
+                                id: rxBaseline
+                                font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                                text: "88.8 MB/s"
+                            }
+
+                            width: Math.max(rxBaseline.width, paintedWidth)
+                        }
+                    }
+
+                    Row {
+                        spacing: 4
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        StyledText {
+                            text: "↑"
+                            font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                            color: Theme.error
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        StyledText {
+                            text: DgopService.networkTxRate > 0 ? root.formatNetworkSpeed(DgopService.networkTxRate) : "0 B/s"
+                            font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                            color: Theme.widgetTextColor
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: Text.AlignLeft
+                            elide: Text.ElideNone
+                            wrapMode: Text.NoWrap
+
+                            StyledTextMetrics {
+                                id: txBaseline
+                                font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                                text: "88.8 MB/s"
+                            }
+
+                            width: Math.max(txBaseline.width, paintedWidth)
+                        }
                     }
                 }
 
-                Row {
+                Column {
+                    id: stackedColumn
+                    spacing: 0
+                    visible: root.showVerticalStack
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: 4
 
-                    StyledText {
-                        text: "↑"
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.error
-                    }
+                    readonly property int stackedFontSize: Math.max(8, Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText) - 2)
 
-                    StyledText {
-                        text: DgopService.networkTxRate > 0 ? root.formatNetworkSpeed(DgopService.networkTxRate) : "0 B/s"
-                        font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                        color: Theme.widgetTextColor
-                        anchors.verticalCenter: parent.verticalCenter
-                        horizontalAlignment: Text.AlignLeft
-                        elide: Text.ElideNone
-                        wrapMode: Text.NoWrap
+                    Row {
+                        spacing: 4
 
-                        StyledTextMetrics {
-                            id: txBaseline
-                            font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
-                            text: "88.8 MB/s"
+                        StyledText {
+                            text: "↑"
+                            font.pixelSize: stackedColumn.stackedFontSize
+                            color: Theme.error
+                            anchors.verticalCenter: parent.verticalCenter
                         }
 
-                        width: Math.max(txBaseline.width, paintedWidth)
+                        StyledText {
+                            text: DgopService.networkTxRate > 0 ? root.formatNetworkSpeed(DgopService.networkTxRate) : "0 B/s"
+                            font.pixelSize: stackedColumn.stackedFontSize
+                            color: Theme.widgetTextColor
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: Text.AlignLeft
+                            elide: Text.ElideNone
+                            wrapMode: Text.NoWrap
+
+                            StyledTextMetrics {
+                                id: txStackedBaseline
+                                font.pixelSize: stackedColumn.stackedFontSize
+                                text: "88.8 MB/s"
+                            }
+
+                            width: Math.max(txStackedBaseline.width, paintedWidth)
+                        }
+                    }
+
+                    Row {
+                        spacing: 4
+
+                        StyledText {
+                            text: "↓"
+                            font.pixelSize: stackedColumn.stackedFontSize
+                            color: Theme.info
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        StyledText {
+                            text: DgopService.networkRxRate > 0 ? root.formatNetworkSpeed(DgopService.networkRxRate) : "0 B/s"
+                            font.pixelSize: stackedColumn.stackedFontSize
+                            color: Theme.widgetTextColor
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: Text.AlignLeft
+                            elide: Text.ElideNone
+                            wrapMode: Text.NoWrap
+
+                            StyledTextMetrics {
+                                id: rxStackedBaseline
+                                font.pixelSize: stackedColumn.stackedFontSize
+                                text: "88.8 MB/s"
+                            }
+
+                            width: Math.max(rxStackedBaseline.width, paintedWidth)
+                        }
                     }
                 }
             }
